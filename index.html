@@ -2,9 +2,175 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Tower Defense</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TD 1</title>
+
+<link href="css/td1.css" rel="stylesheet">
+
+<script src="js/jquery-1.11.3.js"></script>
+
+<script type="text/javascript">
+
+$( document ).ready(function() {
+	
+	//Initialize Variables
+	var row_total = 6;
+	var column_total = 10;
+	var row_height = 100;
+	var row_width = 100;
+	var column_width = row_width / column_total;
+	var missile_width = column_width * 0.64;
+	var missile_height = column_width * 0.2;
+	
+	
+	
+	
+	for (x=0; x < row_total; x++) {
+		$('body').append("<div class='row' id='row" + x + "'>");
+		for (y=0; y < column_total; y++) {
+			$('#row'+x).append("<div class='column' id='column" + y + "'></div>");
+		}
+		$('body').append("</div>");
+	}
+	
+	//Set row and column widths
+	$('.row').css('width', row_width+'%');
+	$('.column').css('width', column_width+'%');
+	
+	
+	////////////////////////////////////////////////////////
+	//Adjust column height to the set column height
+	//Adjust missile dimensions
+	//This is to keep square shapes
+	//Runs on load and window resize
+	////////////////////////////////////////////////////////
+	$(window).on("load resize",function(e){
+		//column dimensions
+		var col_width = $('.column').width();
+		$('.column').css({'height':col_width+'px'})
+		//missile dimensions
+		$('.missile').css({'height':(col_width * 0.2)+'px', 'width':(col_width * 0.64)+'px'})
+	});
+	
+	
+	////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////
+	function moveMissile(missile_name, sentry_num) {
+		
+		var shootTime = setInterval(function()
+						  {
+							  var missileFlight = setInterval(function()
+													{
+														var missile_element = document.getElementById(missile_name);
+														var left_dim = missile_element.style.left;
+														left_dim = parseInt(left_dim.replace("%",""));
+														left_dim += 1;
+														
+														if (left_dim >= 100)
+														{
+															missile_element.remove();
+															clearInterval(missileFlight);
+															
+														}
+														else
+														{
+															left_dim = left_dim+"%";
+															missile_element.style.left = left_dim;
+														}
+														
+														
+														
+													}, 15);
+							  clearInterval(shootTime);
+						  }, 3000);
+	}
+	
+	
+	////////////////////////////////////////////////////////
+	//Fire One Missile
+	////////////////////////////////////////////////////////
+	var missile_count = 0;
+	
+	function addMissile(sentry_num) {
+		
+		missile_count++;
+		
+		var columnid = $('#sentry'+sentry_num).parent().attr('id');
+		columnid = columnid.replace("column", "");
+		
+		var rowid = $('#sentry'+sentry_num).parent().parent().attr('id');
+		rowid = rowid.replace("row", "");
+		
+		
+		var missile_label = 'missile'+missile_count;
+		$('body').append('<div id="'+missile_label+'" class="missile"><img class="missile_image" src="img/missile.png"  /></div>');
+		
+		
+		//missile dimensions
+		var col_width = $('.column').width();
+		$('.missile').css({'height':(col_width * 0.2)+'px', 'width':(col_width * 0.64)+'px'})
+		
+		var missile = new Array(100);
+		missile[missile_count] = {top: (100 / row_total), left: (100 / column_total)};
+		$('#'+missile_label).css({'top':missile[missile_count]['top']*rowid+2.7+'%', 'left':missile[missile_count]['left']*columnid+3+'%'});
+		
+		moveMissile(missile_label, sentry_num);
+	}
+	
+	
+	
+	
+	
+	////////////////////////////////////////////////////////
+	//Upon clicking a div, insert an image into that div
+	//Clicking may be limited based on "nth-of-type"
+	////////////////////////////////////////////////////////
+	var sentry_count = 0;
+	
+	$('div.column:nth-of-type(-n+3)').click(function(){
+		sentry_count++;
+		var sentry_num = sentry_count;
+		$( this ).html("<img src='img/sentry.png' class='sentry' id='sentry"+sentry_count+"' /><div class='numbers'>"+sentry_count+"</div>");
+		addMissile(sentry_num);
+		var missile_interval = setInterval(function()	{
+															addMissile(sentry_num);
+														}, 4000);
+	
+	});
+	
+	
+	
+	
+});
+
+</script>
+
+
 </head>
 
 <body>
+
+<!--
+<?
+
+	for ($x = 0; $x < $row_total; $x++)
+	{
+?>
+        <div class="row" id="row<?=$x?>">
+<?
+			for($y = 0; $y < $column_total; $y++)
+			{
+?>	
+				<div class="column" id="column<?=$y?>">
+                	
+                </div>
+<?
+			}
+?>   
+        </div>
+<?
+	}
+?>-->
+
 </body>
 </html>
